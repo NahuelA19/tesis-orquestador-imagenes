@@ -1,0 +1,260 @@
+:root {
+  --bg-main: #0B0F19; /* Very dark blueish-black */
+  --bg-card: #141B2D; /* Lighter surface */
+  --bg-card-hover: #1A2235;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  
+  --color-critical: #ef4444; /* Red */
+  --color-critical-bg: rgba(239, 68, 68, 0.1);
+  --color-urgent: #f59e0b; /* Amber */
+  --color-urgent-bg: rgba(245, 158, 11, 0.1);
+  --color-routine: #3b82f6; /* Blue */
+  --color-routine-bg: rgba(59, 130, 246, 0.1);
+  
+  --border-color: #1e293b;
+  
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: dark;
+  color: var(--text-primary);
+  background-color: var(--bg-main);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  min-height: 100vh;
+  min-width: 100vw;
+  background-color: var(--bg-main);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(15, 23, 42, 1) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(15, 23, 42, 1) 0px, transparent 50%);
+}
+
+#root {
+  width: 100%;
+  padding: 0;
+  margin: 0 auto;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Títulos y tipografía general */
+h1, h2, h3, h4 {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+p {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+/* Animaciones de Emergencia */
+@keyframes pulse-critical {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+@keyframes pulse-urgent {
+  0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Clases Utilitarias */
+.header-bar {
+  background: var(--bg-card);
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.5rem;
+  letter-spacing: -0.5px;
+}
+
+.dashboard-container {
+  padding: 2rem;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.kanban-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.column {
+  background: rgba(20, 27, 45, 0.5);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  min-height: calc(100vh - 150px);
+}
+
+.column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.badge-count {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.column.critical { border-top: 4px solid var(--color-critical); }
+.column.urgent { border-top: 4px solid var(--color-urgent); }
+.column.routine { border-top: 4px solid var(--color-routine); }
+
+/* Card Estilos */
+.order-card {
+  background: var(--bg-card);
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+  animation: slideIn 0.3s ease-out forwards;
+  position: relative;
+  overflow: hidden;
+}
+
+.order-card:hover {
+  background: var(--bg-card-hover);
+  transform: translateY(-2px);
+}
+
+.order-card.critical {
+  border-left: 4px solid var(--color-critical);
+  animation: slideIn 0.3s ease-out forwards, pulse-critical 2s infinite;
+}
+
+.order-card.urgent {
+  border-left: 4px solid var(--color-urgent);
+  /* Pulse opcional para urgentes, más sutil */
+  /* animation: slideIn 0.3s ease-out forwards, pulse-urgent 3s infinite; */
+}
+
+.order-card.routine {
+  border-left: 4px solid var(--color-routine);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.card-origin {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.origin-guardia { background: var(--color-urgent-bg); color: var(--color-urgent); }
+.origin-internacion { background: var(--color-critical-bg); color: var(--color-critical); }
+.origin-ambulatorio { background: var(--color-routine-bg); color: var(--color-routine); }
+
+.patient-info {
+  margin-bottom: 1rem;
+}
+
+.patient-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.study-info {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+.study-title {
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.study-diagnosis {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.diagnosis-alert {
+  color: var(--color-critical);
+  font-weight: 500;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border-color);
+  padding-top: 12px;
+  margin-top: 12px;
+}
+
+.loading-state, .error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  color: var(--text-secondary);
+  gap: 16px;
+}
+
+.error-state {
+  color: var(--color-critical);
+}

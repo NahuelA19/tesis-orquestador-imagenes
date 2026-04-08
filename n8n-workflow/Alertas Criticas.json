@@ -1,0 +1,107 @@
+{
+  "name": "Alertas Criticas",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "alertas-criticas",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [0, 0],
+      "id": "66566485-c940-4b0e-a10c-53dfc1d06e69",
+      "name": "Webhook",
+      "webhookId": "61f8d6be-dd7d-4296-bf94-240b65e6e3c9"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Nodo: Validacion y Enriquecimiento del Mensaje de Alerta\nconst body = $input.first().json.body;\n\n// 1. Validacion basica: si no trae los campos minimos, cortamos el flujo\nif (!body || !body.order_id) {\n  throw new Error('Payload invalido: falta order_id');\n}\n\n// 2. Privacidad (Ley 25.326): usamos pseudonimo si esta disponible, nunca nombre real\nconst identidad = body.patient_pseudonym || body.patient || 'Paciente Anonimizado';\n\n// 3. Diferenciamos visualmente segun criticidad\nconst esCritico = body.is_critical === true;\n\nlet emoji = '⚠️';\nlet nivel = 'URGENTE';\nif (esCritico) {\n  emoji = '🆘';\n  nivel = 'CRITICO';\n}\n\n// 4. Construimos el mensaje estructurado\nconst lineas = [\n  `${emoji} ALERTA ${nivel} — RadioGroup`,\n  `👤 Paciente: ${identidad}`,\n  `📋 Diagnóstico: ${body.diagnosis || 'Sin especificar'}`,\n  `🏥 Ubicación: ${body.location || 'Sin especificar'}`,\n  `🔬 Servicio: ${body.setting || 'Sin especificar'}`,\n  `🆔 Orden #${body.order_id}`,\n  `⏱️ Recibido: ${new Date().toLocaleString('es-AR')}`,\n];\n\nconst mensaje = lineas.join('\\n');\n\nreturn [{\n  json: {\n    mensaje,\n    nivel,\n    order_id: body.order_id,\n    identidad,\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 0],
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "name": "Preparar Alerta"
+    },
+    {
+      "parameters": {
+        "chatId": "-5103240525",
+        "text": "={{ $json.mensaje }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [480, 0],
+      "id": "d44abcf0-0e8a-4804-85d5-56270bab9bc9",
+      "name": "Enviar Alerta Telegram",
+      "credentials": {
+        "telegramApi": {
+          "id": "vDK4MLRlTBXmHeoj",
+          "name": "Telegram account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Nodo: Log de Resultado\nconst input = $input.first().json;\nconst ahora = new Date().toISOString();\n\n// Detectar si el mensaje fue enviado exitosamente (Telegram devuelve message_id)\nconst exitoso = input.message_id !== undefined;\n\nif (exitoso) {\n  console.log(`✅ [${ahora}] Alerta enviada. Orden #${input.order_id || '?'} | Telegram msg_id: ${input.message_id}`);\n} else {\n  console.log(`❌ [${ahora}] FALLO el envio de alerta para Orden #${input.order_id || '?'}`);\n}\n\nreturn [$input.first()];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "id": "f0e9d8c7-b6a5-4321-fedc-ba9876543210",
+      "name": "Log Resultado"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Preparar Alerta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar Alerta": {
+      "main": [
+        [
+          {
+            "node": "Enviar Alerta Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar Alerta Telegram": {
+      "main": [
+        [
+          {
+            "node": "Log Resultado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "44d9455a-46d4-4a7e-b4cb-08ba4d71e4d7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "68817198e4f2234f06d497b266480aeaee86e39fa21de9dd94db6e614877bfec"
+  },
+  "id": "tda6vJhg3kaxsVvE",
+  "tags": []
+}
