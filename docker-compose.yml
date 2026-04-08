@@ -55,9 +55,28 @@ services:
     volumes:
       - orthanc_data:/var/lib/orthanc/db
     restart: always
-
-  # 4. Backend (FastAPI) se correrá localmente agora
-
+  fastapi:
+    build: ./server
+    container_name: backend_fastapi
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./server:/app
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}
+      - ORTHANC_HOST=orthanc
+      - ORTHANC_PORT=8042
+      - ORTHANC_USER=${ORTHANC_USER}
+      - ORTHANC_PASS=${ORTHANC_PASS}
+      - URL_WEBHOOK_N8N=http://n8n:5678/webhook/alertas-criticas
+    depends_on:
+      - postgres
+    restart: always
 
 volumes:
   postgres_data:
